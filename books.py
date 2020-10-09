@@ -5,7 +5,6 @@ import xmltodict
 from pandas.io.json import json_normalize
 import urllib.request
 import seaborn as sns
-import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from PIL import Image
 import gender_guesser.detector as gender
@@ -93,11 +92,13 @@ row3_space1, row3_1, row3_space2, row3_2, row3_space3 = st.beta_columns((.1,1,.1
 # with row3_1:
 year_df = pd.DataFrame(df['read_at_year'].value_counts()).reset_index()
 year_df = year_df.sort_values(by = 'index')
-sns.barplot(x = year_df['index'], y = year_df['read_at_year'], color='goldenrod')
-plt.xlabel('Year')
-plt.ylabel('Books Read')
+fig3_1 = Figure()
+ax3_1 = fig3_1.add_axes(rect=[0.1, 0.1, 0.8, 0.8])
+sns.barplot(x = year_df['index'], y = year_df['read_at_year'], color='goldenrod', ax=ax3_1)
+ax3_1.set_xlabel('Year')
+ax3_1.set_ylabel('Books Read')
 row3_1.subheader('Books Read')
-row3_1.pyplot()
+row3_1.pyplot(fig3_1)
 row3_1.markdown("It looks like you've read a grand total of **{} books with {} authors,** with {} being your most read author! That's awesome. Here's what your reading habits look like since you've started using Goodreads.".format(u_books, u_authors, df['book.authors.author.name'].mode()[0]))
 
 
@@ -105,11 +106,14 @@ row3_1.markdown("It looks like you've read a grand total of **{} books with {} a
 
 # with row3_2:
 row3_2.subheader("Book Age")
-# st.markdown("This next graph starts with the distribution of publication date for your read books. I've always wanted to try and read books that stand the test of time, and this graph let's me see how I do on that axis.")
-sns.distplot(pd.to_numeric(df['book.publication_year'], errors='coerce').dropna().astype(np.int64), kde_kws={'clip': (0.0, 2020)})
-plt.xlabel('Book Publication Year')
-plt.ylabel('Density')
-row3_2.pyplot()
+# st.markdown("This next graph starts with the distribution of publication date for your read books. I've always wanted
+# to try and read books that stand the test of time, and this graph let's me see how I do on that axis.")
+fig3_2 = Figure()
+ax3_2 = fig3_2.add_axes(rect=[0.1, 0.1, 0.8, 0.8])
+sns.distplot(pd.to_numeric(df['book.publication_year'], errors='coerce').dropna().astype(np.int64), kde_kws={'clip': (0.0, 2020)}, ax=ax3_2)
+ax3_2.set_xlabel('Book Publication Year')
+ax3_2.set_ylabel('Density')
+row3_2.pyplot(fig3_2)
 
 avg_book_year = str(int(np.mean(pd.to_numeric(df['book.publication_year']))))
 row = df[df['book.publication_year'] == str(pd.to_numeric(df['book.publication_year']).min())[0:4]]
@@ -126,10 +130,12 @@ row4_space1, row4_1, row4_space2, row4_2, row4_space3 = st.beta_columns((.1,1,.1
 # with row4_1:
 row4_1.subheader("How Do You Rate Your Reads?")
 rating_df = pd.DataFrame(pd.to_numeric(df[df['rating'].isin(['1','2','3','4','5'])]['rating']).value_counts(normalize=True)).reset_index()
-sns.barplot(x=rating_df['index'], y = rating_df['rating'], color= "goldenrod")
-plt.ylabel('Percentage')
-plt.xlabel('Your Book Ratings')
-row4_1.pyplot()
+fig4_1 = Figure()
+ax4_1 = fig4_1.add_axes(rect=[0.1, 0.1, 0.8, 0.8])
+sns.barplot(x=rating_df['index'], y = rating_df['rating'], color= "goldenrod", ax=ax4_1)
+ax4_1.set_ylabel('Percentage')
+ax4_1.set_xlabel('Your Book Ratings')
+row4_1.pyplot(fig4_1)
 
 df['rating_diff'] = pd.to_numeric(df['book.average_rating']) - pd.to_numeric(df[df['rating'].isin(['1','2','3','4','5'])]['rating'])
 
@@ -147,10 +153,12 @@ else:
 
 # with row4_2:
 row4_2.subheader("How do Goodreads Users Rate Your Reads?")
-sns.distplot(pd.to_numeric(df['book.average_rating'], errors='coerce').dropna(), kde_kws={'clip': (0.0, 5.0)})
-plt.xlabel('Goodreads Book Ratings')
-plt.ylabel('Density')
-row4_2.pyplot()
+fig4_2 = Figure()
+ax4_2 = fig4_2.add_axes(rect=[0.1, 0.1, 0.8, 0.8])
+sns.distplot(pd.to_numeric(df['book.average_rating'], errors='coerce').dropna(), kde_kws={'clip': (0.0, 5.0)}, ax=ax4_2)
+ax4_2.set_xlabel('Goodreads Book Ratings')
+ax4_2.set_ylabel('Density')
+row4_2.pyplot(fig4_2)
 row4_2.markdown("Here is the distribution of average rating by other Goodreads users for the books that you've read. Note that this is a distribution of averages, which explains the lack of extreme values!")
 row4_2.write('')
     # st.markdown("Now let's compare that to how you've rated the books you've read.")
@@ -163,10 +171,12 @@ row5_space1, row5_1, row5_space2, row5_2, row5_space3 = st.beta_columns((.1,1,.1
 # with row5_1:
     #page breakdown
 row5_1.subheader('Book Length Distribution')
-sns.distplot(pd.to_numeric(df['book.num_pages'].dropna()))
-plt.xlabel('Number of Pages')
-plt.ylabel('Density')
-row5_1.pyplot()
+fig5_1 = Figure()
+ax5_1 = fig5_1.add_axes(rect=[0.1, 0.1, 0.8, 0.8])
+sns.distplot(pd.to_numeric(df['book.num_pages'].dropna()), ax=ax5_1)
+ax5_1.set_xlabel('Number of Pages')
+ax5_1.set_ylabel('Density')
+row5_1.pyplot(fig5_1)
 
 book_len_avg = round(np.mean(pd.to_numeric(df['book.num_pages'].dropna())))
 book_len_max = pd.to_numeric(df['book.num_pages']).max()
@@ -180,10 +190,12 @@ row5_1.markdown("Your average book length is **{} pages**, and your longest book
 	#length of time until completion
 row5_2.subheader('How Quickly Do You Read?')
 df['days_to_complete'] = (pd.to_datetime(df['read_at']) - pd.to_datetime(df['started_at'])).dt.days
-sns.distplot(pd.to_numeric(df['days_to_complete'].dropna()))
-plt.xlabel('Days')
-plt.ylabel('Density')
-row5_2.pyplot()
+fig5_2 = Figure()
+ax5_2 = fig5_2.add_axes(rect=[0.1, 0.1, 0.8, 0.8])
+sns.distplot(pd.to_numeric(df['days_to_complete'].dropna()), ax=ax5_2)
+ax5_2.set_xlabel('Days')
+ax5_2.set_ylabel('Density')
+row5_2.pyplot(fig5_2)
 time_len_avg = round(np.mean(pd.to_numeric(df['days_to_complete'].dropna())))
 row5_2.markdown("On average, it takes you **{} days** between you putting on Goodreads that you're reading a title, and you getting through it! Now let's move on to a gender breakdown of your authors.".format(time_len_avg))
 
@@ -206,10 +218,12 @@ df.loc[df['author_gender'] == 'mostly_female', 'author_gender'] = 'female'
 
 
 author_gender_df = pd.DataFrame(df['author_gender'].value_counts(normalize=True)).reset_index()
-sns.barplot(x=author_gender_df['index'], y = author_gender_df['author_gender'], color= "goldenrod")
-plt.ylabel('Percentage')
-plt.xlabel('Gender')
-row6_1.pyplot()
+fig6_1 = Figure()
+ax6_1 = fig6_1.add_axes(rect=[0.1, 0.1, 0.8, 0.8])
+sns.barplot(x=author_gender_df['index'], y = author_gender_df['author_gender'], color= "goldenrod", ax=ax6_1)
+ax6_1.set_ylabel('Percentage')
+ax6_1.set_xlabel('Gender')
+row6_1.pyplot(fig6_1)
 row6_1.markdown('To get the gender breakdown of the books you have read, this next bit takes the first name of the authors and uses that to predict their gender. These algorithms are far from perfect, and tend to miss non-Western/non-English genders often so take this graph with a grain of salt.')
 row6_1.markdown("Note: the package I'm using for this prediction outputs 'andy', which stands for androgenous, whenever multiple genders are nearly equally likely (at some threshold of confidence). It is not, sadly, a prediction of a new gender called andy.")
 
@@ -219,10 +233,12 @@ year_author_df = pd.DataFrame(df.groupby(['read_at_year'])['author_gender'].valu
 year_author_df.columns = ['Percentage']
 year_author_df.reset_index(inplace=True)
 year_author_df = year_author_df[year_author_df['read_at_year'] != '']
-sns.lineplot(x=year_author_df['read_at_year'], y=year_author_df['Percentage'], hue = year_author_df['author_gender'])
-plt.xlabel('Year')
-plt.ylabel('Percentage')
-row6_2.pyplot()
+fig6_2 = Figure()
+ax6_2 = fig6_2.add_axes(rect=[0.1, 0.1, 0.8, 0.8])
+sns.lineplot(x=year_author_df['read_at_year'], y=year_author_df['Percentage'], hue = year_author_df['author_gender'], ax=ax6_2)
+ax6_2.set_xlabel('Year')
+ax6_2.set_ylabel('Percentage')
+row6_2.pyplot(fig6_2)
 row6_2.markdown("Here you can see the gender distribution over time to see how your reading habits may have changed. Want to read more books written by women? [Here](https://www.penguin.co.uk/articles/2019/mar/best-books-by-female-authors.html) is a great list from Penguin that should be a good start (I'm trying to do better at this myself!).")
 
 
